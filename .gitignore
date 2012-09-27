@@ -1,0 +1,13 @@
+.DS_Store*
+Thumbs.db
+/.project
+/.pydevproject
+*.pyc
+/bin
+/dist
+/parts
+/eggs
+/downloads
+/build
+/develop-eggs
+*.egg-info
