@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 '''
-filesync.core
+filesync.utils
 
 Created by Brennan Chapman and Bohdon Sayre on 2012-08-07.
 Copyright (c) 2012 Moonbot Studios. All rights reserved.

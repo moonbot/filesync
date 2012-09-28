@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 '''
-filesync.core
+filesync.sync
 
 Created by Brennan Chapman and Bohdon Sayre on 2012-08-07.
 Copyright (c) 2012 Moonbot Studios. All rights reserved.
@@ -45,6 +45,8 @@ class Sync(object):
     can then be trimmed using ``difftrim``. Once the difference reflects the
     desired changes, run the ``sync`` or ``update`` methods depending on if
     files/dirs should be created and updated, or only updated.
+
+    TODO: describe the diff settings and run settings here
     '''
     
     def __init__(self, src=None, dst=None, **kwargs):
