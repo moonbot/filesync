@@ -355,6 +355,7 @@ class Diff(object):
             if dst is None:
                 dst = tmpdir
             # compare directories
+            LOG.debug('{0}, {1}'.format(src, dst))
             c = filecmp.dircmp(src, dst)
             return processCmp(c, src, dst, tmpdir)
 

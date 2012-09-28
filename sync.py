@@ -15,13 +15,6 @@ from diff import Diff
 from utils import *
 
 LOG = logging.getLogger(__name__)
-# def _setupLog():
-#     sh = logging.StreamHandler()
-#     sh.setFormatter(logging.Formatter('%(name)s:%(levelname)s: %(message)s'))
-#     level = logging.DEBUG if True else logging.INFO
-#     LOG.setLevel(level)
-#     LOG.addHandler(sh)
-# _setupLog()
 
 __all__ = [
     'FileSyncError',
@@ -140,7 +133,7 @@ class Sync(object):
         for path in purge:
             self.trimdiff.remove_purge(path)
 
-    def sync(self, no_update=False, dry_run=False, **kwargs):
+    def sync(self, no_update=True, dry_run=False, **kwargs):
         '''
         Copy any new files and update any existing files from src to dst
         directories using the compiled dirdiff list
