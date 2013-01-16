@@ -375,7 +375,7 @@ class Sync(object):
         else:
             self.runreport()
     
-    def diffreport(self):
+    def diffreport(self, **kwargs):
         '''
         Return a report from the current diff
         ``trimmed`` -- if True, returns the trimmed diff's report
@@ -383,9 +383,9 @@ class Sync(object):
         if self.origdiff is None:
             return
         if self.runstngs['trimmed']:
-            return self.trimdiff.report()
+            return self.trimdiff.report(**kwargs)
         else:
-            return self.origdiff.report()
+            return self.origdiff.report(**kwargs)
     
     def runreport(self):
         '''

@@ -410,7 +410,7 @@ class Diff(object):
         self.totalcount = self.createcount + self.updatecount + self.purgecount
     
 
-    def report(self):
+    def report(self, create=True, update=True, purge=True):
         '''Print a report of the difference that has been compiled'''
         if self.filelist is None:
             LOG.info('No relative file list is defined')
@@ -425,7 +425,13 @@ class Diff(object):
         dashes = '-'*len(title)
         result = '\n{0}\n{1}\n'.format(title, dashes)
         # loop through all attributes
-        attrs = ['create', 'update', 'purge']
+        attrs = []
+        if create:
+            attrs.append('create')
+        if update:
+            attrs.append('update')
+        if purge:
+            attrs.append('purge')
         for attr in attrs:
             count = getattr(self, '{0}count'.format(attr))
             result += ('\n{attr}: ({0})\n'.format(count, attr=attr.title()))
