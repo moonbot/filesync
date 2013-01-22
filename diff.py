@@ -133,7 +133,11 @@ class Diff(object):
 
     def __asdir(self, x):
         return '{0}{1}'.format(x.rstrip('/\\'), os.sep)
-    
+
+    def clearFiles(self):
+        self.create = {}
+        self.update = {}
+        self.purge = {}
 
     def _add(self, op, path):
         # rstrip the path so we ensure a common starting point

@@ -133,7 +133,7 @@ class Sync(object):
         for path in purge:
             self.trimdiff.remove_purge(path)
 
-    def sync(self, no_update=True, dry_run=False, **kwargs):
+    def sync(self, refreshDiff=False, dry_run=False, **kwargs):
         '''
         Copy any new files and update any existing files from src to dst
         directories using the compiled dirdiff list
@@ -141,22 +141,25 @@ class Sync(object):
         self.runstngs['create'] = True
         self.runstngs['update'] = True
         self.runstngs.update(kwargs)
-        self.run(no_update=no_update, dry_run=dry_run)
+        self.run(refreshDiff=refreshDiff, dry_run=dry_run)
     
-    def update(self, no_update=False, dry_run=False, **kwargs):
+    def update(self, refreshDiff=False, dry_run=False, **kwargs):
         '''Update only files that already exist in both src and dst'''
         self.runstngs['create'] = False
         self.runstngs['update'] = True
         self.runstngs.update(kwargs)
-        self.run(no_update=no_update, dry_run=dry_run)
+        self.run(refreshDiff=refreshDiff, dry_run=dry_run)
     
-    def run(self, no_update=False, dry_run=False):
+    def run(self, refreshDiff=False, dry_run=False, **kwargs):
         '''
         Run the directory sync given the current run settings
         
-        ``no_update`` -- cancels running diff() after finishing (warning:
-            this leaves stale diffs around after sync/update)
+        ``refreshDiff`` -- re-runs diff() after syncing
         '''
+        if kwargs.has_key('no_update'):
+            LOG.warning('Filesync Deprecation Warning: \'no_update\' is no longer supported, use \'refreshDiff\' instead')
+            refreshDiff = not kwargs['no_update']
+
         if not self.__diffcurrent:
             LOG.warning('diff is not current; it\'s recommended to run diff again before updating/synching')
         
@@ -165,12 +168,12 @@ class Sync(object):
         self.stats['etime'] = time.time()
         
         self.__hasrun = True
-        if not no_update:
+        self.__diffcurrent = False
+        if refreshDiff:
             self.diff()
-        else:
-            self.__diffcurrent = False
     
     def __run(self, dry_run=False):
+        # reset stats
         self.stats['creates'] = []
         self.stats['createfails'] = []
         self.stats['updates'] = []
@@ -181,10 +184,15 @@ class Sync(object):
         d = self.trimdiff if self.runstngs['trimmed'] else self.origdiff
         if d is None:
             return
+        return self.runwithdiff(d, dry_run)
+
+    def runwithdiff(self, diff, dry_run=False):
+        if not isinstance(diff, Diff):
+            raise TypeError('expected Diff, got {0}'.format(type(diff).__name__))
         # run through all 'create' files
         if self.runstngs['create']:
             LOG.debug('creating...')
-            items = sorted(d.create.items())
+            items = sorted(diff.create.items())
             for path, files in items:
                 if self.progresscheck is not None:
                     if not self.progresscheck():
@@ -207,7 +215,7 @@ class Sync(object):
         # run through all 'update' files
         if self.runstngs['update']:
             LOG.debug('updating...')
-            items = sorted(d.update.items())
+            items = sorted(diff.update.items())
             for path, files in items:
                 if self.progresscheck is not None:
                     if not self.progresscheck():
@@ -225,7 +233,7 @@ class Sync(object):
         # run through all 'purge' files
         if self.runstngs['purge']:
             LOG.debug('purging...')
-            items = sorted(d.purge.items())
+            items = sorted(diff.purge.items())
             for path, files in items:
                 if self.progresscheck is not None:
                     if not self.progresscheck():
