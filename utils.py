@@ -14,7 +14,10 @@ import logging
 LOG = logging.getLogger(__name__)
 
 def _isfile(p):
-    return stat.S_ISREG(os.stat(p).st_mode)
+    if not os.path.islink(p):
+        return stat.S_ISREG(os.stat(p).st_mode)
+    else:
+        return False
 
 def _isdir(p):
     try:
