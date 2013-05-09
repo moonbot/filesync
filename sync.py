@@ -67,6 +67,7 @@ class Sync(object):
             'update':False,
             'purge':False,
             'forceOwnership':False,
+            'errorsToDebug':False,
         }
         self.progressfnc = None
         self.progresscheck = None
@@ -323,7 +324,10 @@ class Sync(object):
                             return False
                 shutil.copy2(src, dst)
         except (IOError, OSError) as e:
-            LOG.error(e)
+            if self.runstngs['errorsToDebug']:
+                LOG.debug(e)
+            else:
+                LOG.error(e)
             if fails is not None:
                 fails.append(dst)
         else:
