@@ -18,7 +18,10 @@ import logging
 
 import utils
 
-LOG = logging.getMbotLogger(__name__)
+try:
+    LOG = logging.getMbotLogger(__name__)
+except:
+    LOG = logging.getLogger(__name__)
 
 class Diff(object):
     '''

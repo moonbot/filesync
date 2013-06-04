@@ -14,7 +14,10 @@ import optparse
 from sync import Sync
 from watch import WatchFolder
 
-LOG = logging.getMbotLogger(__name__)
+try:
+    LOG = logging.getMbotLogger(__name__)
+except:
+    LOG = logging.getLogger(__name__)
 
 def _setupLog():
     sh = logging.StreamHandler()

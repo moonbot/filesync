@@ -11,7 +11,10 @@ import os
 import stat
 import logging
 
-LOG = logging.getMbotLogger(__name__)
+try:
+    LOG = logging.getMbotLogger(__name__)
+except:
+    LOG = logging.getLogger(__name__)
 
 def _isfile(p):
     if not os.path.islink(p):
