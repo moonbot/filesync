@@ -14,7 +14,7 @@ import logging
 from diff import Diff
 from utils import *
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getMbotLogger(__name__)
 
 __all__ = [
     'FileSyncError',

@@ -14,7 +14,8 @@ import optparse
 from sync import Sync
 from watch import WatchFolder
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getMbotLogger(__name__)
+
 def _setupLog():
     sh = logging.StreamHandler()
     sh.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))

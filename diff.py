@@ -18,7 +18,7 @@ import logging
 
 import utils
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getMbotLogger(__name__)
 
 class Diff(object):
     '''
