@@ -17,10 +17,12 @@ except:
     LOG = logging.getLogger(__name__)
 
 def _isfile(p):
-    if not os.path.islink(p):
-        return stat.S_ISREG(os.stat(p).st_mode)
-    else:
-        return False
+    if os.path.exists(p):
+        if not os.path.islink(p):
+            return stat.S_ISREG(os.stat(p).st_mode)
+        else:
+            return False
+    return False
 
 def _isdir(p):
     try:
