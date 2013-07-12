@@ -89,10 +89,17 @@ class Diff(object):
 
         # Make sure there is a trailing slash to make sure the
         # entire folder name matches
-        if srcFolder[-1] != "\\":
-            srcFolder += "\\"
-        if dstFolder[-1] != "\\":
-            dstFolder += "\\"
+        platform = utils.get_os()
+        if srcFolder[-1] != '\\':
+            if platform in ('mac','linux'):
+                srcFolder += '/'
+            else:
+                srcFolder += '\\'
+        if dstFolder[-1] != '\\':
+            if platform in ('mac','linux'):
+                dstFolder += '/'
+            else:
+                dstFolder += '\\'
 
         result = []
         for path in relativeFileList:
@@ -209,12 +216,16 @@ class Diff(object):
     
     def getSrcPath(self, relPath):
         '''Return a full source path for supplied relative path.'''
-        return os.path.normpath(self.src + "\\" + relPath)
+        platform = utils.get_os()
+        sep = {'windows':'\\','mac':'/','linux':'/'}[platform]
+        return os.path.normpath(self.src + sep + relPath)
 
 
     def getDstPath(self, relPath):
         '''Return a full destination path for supplied relative path.'''
-        return os.path.normpath(self.dst + "\\" + relPath)
+        platform = utils.get_os()
+        sep = {'windows':'\\','mac':'/','linux':'/'}[platform]
+        return os.path.normpath(self.dst + sep + relPath)
 
 
     def compareFileList(self, relativeFileList, srcFolder, dstFolder):

@@ -160,21 +160,24 @@ class Sync(object):
         
         ``refreshDiff`` -- re-runs diff() after syncing
         '''
-        if kwargs.has_key('no_update'):
-            LOG.warning('Filesync Deprecation Warning: \'no_update\' is no longer supported, use \'refreshDiff\' instead')
-            refreshDiff = not kwargs['no_update']
+        try:
+            if kwargs.has_key('no_update'):
+                LOG.warning('Filesync Deprecation Warning: \'no_update\' is no longer supported, use \'refreshDiff\' instead')
+                refreshDiff = not kwargs['no_update']
 
-        if not self.__diffcurrent:
-            LOG.warning('diff is not current; it\'s recommended to run diff again before updating/synching')
-        
-        self.stats['stime'] = time.time()
-        self.__run(dry_run=dry_run)
-        self.stats['etime'] = time.time()
-        
-        self.__hasrun = True
-        self.__diffcurrent = False
-        if refreshDiff:
-            self.diff()
+            if not self.__diffcurrent:
+                LOG.warning('diff is not current; it\'s recommended to run diff again before updating/synching')
+            
+            self.stats['stime'] = time.time()
+            self.__run(dry_run=dry_run)
+            self.stats['etime'] = time.time()
+            
+            self.__hasrun = True
+            self.__diffcurrent = False
+            if refreshDiff:
+                self.diff()
+        except:
+            LOG.exception("Exception running filesync")
     
     def __run(self, dry_run=False):
         # reset stats
@@ -254,6 +257,7 @@ class Sync(object):
                         self.__remove(dstp, self.stats['purges'], self.stats['purgefails'], dry_run)
                     else:
                         LOG.debug('file/folder not found: {0}'.format(dstp))
+        self.progressfnc("Sync complete", 100)
 
     def __makedirs(self, dir_, passes=None, fails=None, dry_run=False):
         '''

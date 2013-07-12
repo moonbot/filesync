@@ -8,6 +8,7 @@ Copyright (c) 2012 Moonbot Studios. All rights reserved.
 '''
 
 import os
+import sys
 import stat
 import logging
 
@@ -44,3 +45,15 @@ def _cmp_mtime(fileA, fileB, precision=3, newer=True):
         return a > b
     else:
         return a != b
+
+def get_os():
+    '''
+    Get the os of the current system in a standard format.
+    mac, windows, linux
+    '''
+    if ((sys.platform.lower() == "win32") or (sys.platform.lower() == "win64")):
+        return "windows"
+    elif (sys.platform.lower() == "darwin"):
+        return "mac"
+    else:
+        return "linux"
