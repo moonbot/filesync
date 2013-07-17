@@ -257,7 +257,8 @@ class Sync(object):
                         self.__remove(dstp, self.stats['purges'], self.stats['purgefails'], dry_run)
                     else:
                         LOG.debug('file/folder not found: {0}'.format(dstp))
-        self.progressfnc("Sync complete", 100)
+        if self.progressfnc:
+            self.progressfnc("Sync complete", 100)
 
     def __makedirs(self, dir_, passes=None, fails=None, dry_run=False):
         '''
