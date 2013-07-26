@@ -289,7 +289,7 @@ class Sync(object):
         Append dst to ``fails`` on error
         '''
         if self.progressfnc:
-            self.progressfnc('Copying {0}'.format(dst), self.__getProgPercent())
+            self.progressfnc('Copying to {0}'.format(dst), self.__getProgPercent())
         try:
             if not dry_run:
                 os.mkdir(dst)
@@ -318,7 +318,7 @@ class Sync(object):
         Append dst to ``fails`` on error
         '''
         if self.progressfnc:
-            self.progressfnc('Copying {0}'.format(dst), self.__getProgPercent())
+            self.progressfnc('Copying to {0}'.format(dst), self.__getProgPercent())
         try:
             if not dry_run:
                 if os.path.exists(dst) and self.runstngs['forceOwnership']:
