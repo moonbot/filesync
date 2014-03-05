@@ -13,8 +13,10 @@ import stat
 import logging
 
 try:
-    LOG = logging.getMbotLogger(__name__)
+    import mbotenv
+    LOG = mbotenv.get_logger(__name__)
 except:
+    import logging
     LOG = logging.getLogger(__name__)
 
 def _isfile(p):

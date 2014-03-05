@@ -19,8 +19,10 @@ import logging
 import utils
 
 try:
-    LOG = logging.getMbotLogger(__name__)
+    import mbotenv
+    LOG = mbotenv.get_logger(__name__)
 except:
+    import logging
     LOG = logging.getLogger(__name__)
 
 class Diff(object):
