@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # encoding: utf-8
-'''
+"""
 filesync.utils
 
 Created by Brennan Chapman and Bohdon Sayre on 2012-08-07.
 Copyright (c) 2012 Moonbot Studios. All rights reserved.
-'''
+"""
 
 import os
 import sys
@@ -34,11 +34,11 @@ def _isdir(p):
         return False
 
 def _cmp_mtime(fileA, fileB, precision=3, newer=True):
-    '''
+    """
     Return True if file A is newer than file B
     ``precision`` -- how many floating point digits to compare the times with.
         precision of 0 compares to seconds
-    '''
+    """
     stA = os.stat(fileA)
     stB = os.stat(fileB)
     a = round(stA.st_mtime, precision)
@@ -49,10 +49,10 @@ def _cmp_mtime(fileA, fileB, precision=3, newer=True):
         return a != b
 
 def get_os():
-    '''
+    """
     Get the os of the current system in a standard format.
     mac, windows, linux
-    '''
+    """
     if ((sys.platform.lower() == "win32") or (sys.platform.lower() == "win64")):
         return "windows"
     elif (sys.platform.lower() == "darwin"):

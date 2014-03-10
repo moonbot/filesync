@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # encoding: utf-8
-'''
+"""
 filesync.watch
 
 Created by Brennan Chapman on 2012-08-07.
 Copyright (c) 2012 Moonbot Studios. All rights reserved.
 
 Watch folder components
-'''
+"""
 
 import os
 import sys
@@ -28,10 +28,10 @@ class WatchFolder(threading.Thread):
         self.kwargs = kwargs
 
     def pathWalk(self, path):
-        '''
+        """
         Walk through the supplied directory.
         Return a list of all the file and folder paths.
-        '''
+        """
         result = []
         for root, dirs, files in os.walk(path):
             for name in files:
@@ -52,11 +52,11 @@ class WatchFolder(threading.Thread):
         self.initContents = init
 
     def getInitContents(self):
-        '''
+        """
         Check the initital contents for any updates
         based on modification time.
         Return a list of paths that haven't been updated.
-        '''
+        """
         result = []
         for item in self.initContents:
             try:
@@ -68,16 +68,16 @@ class WatchFolder(threading.Thread):
         return result
 
     def progress(self, msg, perc):
-        '''
+        """
         Display the progress messages from the sync
-        '''
+        """
         sys.stdout.write("\n" + msg.replace(self.dst, ''))
         sys.stdout.flush()
 
     def run(self):
-        '''
+        """
         Thread: Run
-        '''
+        """
         s = Sync(self.src, self.dst, **self.kwargs)
         s.diff()
         self.loadInitContents(s)

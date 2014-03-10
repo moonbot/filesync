@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # encoding: utf-8
-'''
+"""
 filesync.diff
 
 Created by Brennan Chapman and Bohdon Sayre on 2012-08-07.
 Copyright (c) 2012 Moonbot Studios. All rights reserved.
-'''
+"""
 
 import os
 import re
@@ -26,7 +26,7 @@ except:
     LOG = logging.getLogger(__name__)
 
 class Diff(object):
-    '''
+    """
     Diff compares two directories (src and dst) and compiles a list of
     all files and directories that are either only in src, or have been updated
     in src. Diff operates one directionally, so multiple Diffs would be
@@ -47,7 +47,7 @@ class Diff(object):
     
     >>> d = Diff(srcDir, dstDir)
     >>> d.report()
-    '''
+    """
     
     filters = []
     excludes = []
@@ -81,10 +81,10 @@ class Diff(object):
     
 
     def makeFileListRelative(self, relativeFileList, srcFolder, dstFolder):
-        '''
+        """
         Return a list of files with the srcFolder and dstFolder
         removed from the beginning of the file name.
-        '''
+        """
 
         srcFolder = os.path.normpath(srcFolder)
         dstFolder = os.path.normpath(dstFolder)
@@ -118,14 +118,18 @@ class Diff(object):
 
 
     def copy(self):
-        '''Return a deep copy of self'''
+        """
+        Return a deep copy of self
+        """
         from copy import deepcopy
         d = Diff()
         d.__dict__ = deepcopy(self.__dict__)
         return d
     
     def __tmpdir(self):
-        '''Return an empty directory created in the users tmp dir'''
+        """
+        Return an empty directory created in the users tmp dir
+        """
         tmp = None
         if os.environ.has_key('TMP'):
             tmp = os.environ['TMP']
@@ -168,21 +172,19 @@ class Diff(object):
             base = self.__asdir(base)
         attr[dir_].append(base)
     
-
     def add_create(self, path):
         self._add('create', path)
     
-
     def add_update(self, path):
         self._add('update', path)
     
-
     def add_purge(self, path):
         self._add('purge', path)
     
-    
     def _remove(self, op, path):
-        '''Remove the given path from the given attribute'''
+        """
+        Remove the given path from the given attribute
+        """
         # rstrip the path so we ensure a common starting point
         path = path.rstrip('/\\')
         if not op in ['create', 'update', 'purge']:
@@ -202,11 +204,9 @@ class Diff(object):
                     if len(attr[dir_]) == 0:
                         del attr[dir_]
             self.update_counts(ops=[op])
-    
 
     def remove_create(self, path):
         self._remove('create', path)
-    
 
     def remove_update(self, path):
         self._remove('update', path)
@@ -215,26 +215,27 @@ class Diff(object):
     def remove_purge(self, path):
         self._remove('purge', path)
     
-    
     def getSrcPath(self, relPath):
-        '''Return a full source path for supplied relative path.'''
+        """
+        Return a full source path for supplied relative path
+        """
         platform = utils.get_os()
         sep = {'windows':'\\','mac':'/','linux':'/'}[platform]
         return os.path.normpath(self.src + sep + relPath)
 
-
     def getDstPath(self, relPath):
-        '''Return a full destination path for supplied relative path.'''
+        """
+        Return a full destination path for supplied relative path
+        """
         platform = utils.get_os()
         sep = {'windows':'\\','mac':'/','linux':'/'}[platform]
         return os.path.normpath(self.dst + sep + relPath)
 
-
     def compareFileList(self, relativeFileList, srcFolder, dstFolder):
-        '''
+        """
         Compare a list of relative file paths to a
         source and destination folder.
-        '''
+        """
         result = {}
         result['left_only'] = []
         result['common'] = []
@@ -258,7 +259,6 @@ class Diff(object):
         # Wrap the results in a simple class
         return type("FileCmp", (), result)
 
-
     def run(self):
         # compile filters and excludes
         tmpFilters = self.filters[:]
@@ -271,7 +271,6 @@ class Diff(object):
             if not self.regexfilters:
                 tmpExcludes = [re.escape(x) for x in tmpExcludes]
             tmpExcludes = [re.compile(x) for x in tmpExcludes]
-        
 
         def __filter(name, path=None):
             result = False
@@ -294,16 +293,15 @@ class Diff(object):
                     if size < self.sizeLimit:
                         result = False
             return result
-        
 
         def processCmp(cmp, src, dst, tmpdir, **kwargs):
-            '''
+            """
             Process the results from a comparison.
             Compare should include:
                 left_only
                 common
                 right_only
-            '''
+            """
             diff = Diff(**kwargs)
 
             # create files
@@ -363,13 +361,13 @@ class Diff(object):
 
 
         def __dirdiff(src, dst, tmpdir, **kwargs):
-            '''
+            """
             Recursively compare src and dst directories and compile the
             results using dummy Diff instances.
             
             Returns a Diff instance with accurate create/update attributes
             ``tmpdir`` -- an empty directory used for performing null comparisons
-            '''
+            """
             if src is None:
                 src = tmpdir
             if dst is None:
@@ -381,10 +379,10 @@ class Diff(object):
 
 
         def __filediff(relFileList, src, dst, tmpdir, **kwargs):
-            '''
+            """
             Compare a relative file path list between
             source and destination directories
-            '''
+            """
             if src is None:
                 src = tmpdir
             if dst is None:
@@ -431,17 +429,19 @@ class Diff(object):
     
 
     def report(self, create=True, update=True, purge=True):
-        '''Print a report of the difference that has been compiled'''
+        """
+        Print a report of the difference that has been compiled
+        """
         if self.filelist is None:
             LOG.info('No relative file list is defined')
         if self.src is None:
-            LOG.info('No src path is defined')
+            LOG.info('No source path is defined')
             return
         if self.dst is None:
-            LOG.info('No dst path is defined')
+            LOG.info('No destination path is defined')
             return
         # build title
-        title = 'Diff report ({0} -> {1}):'.format(self.src, self.dst)
+        title = 'Diff Report ({0} -> {1}):'.format(self.src, self.dst)
         dashes = '-'*len(title)
         result = '\n{0}\n{1}\n'.format(title, dashes)
         # loop through all attributes

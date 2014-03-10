@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # encoding: utf-8
-'''
+"""
 filesync.sync
 
 Created by Brennan Chapman and Bohdon Sayre on 2012-08-07.
 Copyright (c) 2012 Moonbot Studios. All rights reserved.
-'''
+"""
 
 import os, stat, re, time, sys
 import shutil, filecmp
@@ -17,9 +17,12 @@ from utils import *
 try:
     import mbotenv
     LOG = mbotenv.get_logger(__name__)
+    ROOTLOG = mbotenv.get_logger()
 except:
     import logging
     LOG = logging.getLogger(__name__)
+    ROOTLOG = mbotenv.get_logger()
+    ROOTLOG.indent = 0
 
 __all__ = [
     'FileSyncError',
@@ -28,7 +31,7 @@ __all__ = [
 ]
 
 class Sync(object):
-    '''
+    """
     Sync is a class for synchronizing or updating one directory with another.
     The class operates one directionally, so a true sync would require multiple
     Syncs that do not purge files.
@@ -45,7 +48,7 @@ class Sync(object):
     files/dirs should be created and updated, or only updated.
 
     TODO: describe the diff settings and run settings here
-    '''
+    """
     
     def __init__(self, src=None, dst=None, **kwargs):
         self.src = None if src is None else os.path.normpath(src)
@@ -99,9 +102,9 @@ class Sync(object):
                 self.runstngs[k] = v
 
     def getopts(self):
-        '''
+        """
         Return a list of options and their values
-        '''
+        """
         result = {}
         for k in self.diffstngs.keys():
             result[k] = self.diffstngs[k]
@@ -115,7 +118,9 @@ class Sync(object):
         return True
     
     def diff(self, **kwargs):
-        '''Compile a difference list of files between src and dst directories'''
+        """
+        Compile a difference list of files between src and dst directories
+        """
         if self.__validate():
             # TODO: filter kwargs
             self.diffstngs.update(kwargs)
@@ -125,13 +130,13 @@ class Sync(object):
             self.__diffcurrent = True
     
     def difftrim(self, create=[], update=[], purge=[]):
-        '''
+        """
         Removes items from ``origdiff`` and saves the results in ``trimdiff``
         
         ``create`` -- a list of full paths to remove from the create diff list
         ``update`` -- a list of full paths to remove from the update diff list
         ``purge`` -- a list of full paths to remove from the purge diff list
-        '''
+        """
         for path in create:
             self.trimdiff.remove_create(path)
         for path in update:
@@ -140,28 +145,30 @@ class Sync(object):
             self.trimdiff.remove_purge(path)
 
     def sync(self, refreshDiff=False, dry_run=False, **kwargs):
-        '''
+        """
         Copy any new files and update any existing files from src to dst
         directories using the compiled dirdiff list
-        '''
+        """
         self.runstngs['create'] = True
         self.runstngs['update'] = True
         self.runstngs.update(kwargs)
         self.run(refreshDiff=refreshDiff, dry_run=dry_run)
     
     def update(self, refreshDiff=False, dry_run=False, **kwargs):
-        '''Update only files that already exist in both src and dst'''
+        """
+        Update only files that already exist in both src and dst
+        """
         self.runstngs['create'] = False
         self.runstngs['update'] = True
         self.runstngs.update(kwargs)
         self.run(refreshDiff=refreshDiff, dry_run=dry_run)
     
     def run(self, refreshDiff=False, dry_run=False, **kwargs):
-        '''
+        """
         Run the directory sync given the current run settings
         
         ``refreshDiff`` -- re-runs diff() after syncing
-        '''
+        """
         try:
             if kwargs.has_key('no_update'):
                 LOG.warning('Filesync Deprecation Warning: \'no_update\' is no longer supported, use \'refreshDiff\' instead')
@@ -198,9 +205,12 @@ class Sync(object):
     def runwithdiff(self, diff, dry_run=False):
         if not isinstance(diff, Diff):
             raise TypeError('expected Diff, got {0}'.format(type(diff).__name__))
+        
         # run through all 'create' files
         if self.runstngs['create']:
-            LOG.debug('creating...')
+            LOG.debug('Creating')
+            if LOG.getEffectiveLevel() <= logging.DEBUG:
+                ROOTLOG.indent += 1
             items = sorted(diff.create.items())
             for path, files in items:
                 if self.progresscheck is not None:
@@ -221,9 +231,14 @@ class Sync(object):
                         self.__copydir(srcp, dstp, self.stats['creates'], self.stats['createfails'], dry_run)
                     elif os.path.isfile(srcp):
                         self.__copy(srcp, dstp, self.stats['creates'], self.stats['createfails'], dry_run)
+            if LOG.getEffectiveLevel() <= logging.DEBUG:
+                ROOTLOG.indent -= 1
+        
         # run through all 'update' files
         if self.runstngs['update']:
-            LOG.debug('updating...')
+            LOG.debug('Updating')
+            if LOG.getEffectiveLevel() <= logging.DEBUG:
+                ROOTLOG.indent += 1
             items = sorted(diff.update.items())
             for path, files in items:
                 if self.progresscheck is not None:
@@ -239,9 +254,14 @@ class Sync(object):
                     srcp = os.path.join(srcdir, f)
                     dstp = os.path.join(dstdir, f)
                     self.__copy(srcp, dstp, self.stats['updates'], self.stats['updatefails'], dry_run)
+            if LOG.getEffectiveLevel() <= logging.DEBUG:
+                ROOTLOG.indent -= 1
+        
         # run through all 'purge' files
         if self.runstngs['purge']:
-            LOG.debug('purging...')
+            LOG.debug('Purging')
+            if LOG.getEffectiveLevel() <= logging.DEBUG:
+                ROOTLOG.indent += 1
             items = sorted(diff.purge.items())
             for path, files in items:
                 if self.progresscheck is not None:
@@ -259,14 +279,17 @@ class Sync(object):
                         self.__remove(dstp, self.stats['purges'], self.stats['purgefails'], dry_run)
                     else:
                         LOG.debug('file/folder not found: {0}'.format(dstp))
+            if LOG.getEffectiveLevel() <= logging.DEBUG:
+                ROOTLOG.indent -= 1
+
         if self.progressfnc:
-            self.progressfnc("Sync complete", 100)
+            self.progressfnc("Sync Complete", 100)
 
     def __makedirs(self, dir_, passes=None, fails=None, dry_run=False):
-        '''
+        """
         Make the given dir_ including any parent dirs
         Append dir_ to ``fails`` on error
-        '''
+        """
         try:
             os.makedirs(dir_)
         except Exception as e:
@@ -279,17 +302,17 @@ class Sync(object):
             LOG.debug('made dirs: {0}'.format(dir_))
     
     def __getProgPercent(self):
-        '''
+        """
         Get a progress percentage and return it.
-        '''
+        """
         self.progressamt += 1
         return float(self.progressamt) / float(self.origdiff.totalcount) * 100
 
     def __copydir(self, src, dst, passes=None, fails=None, dry_run=False):
-        '''
+        """
         Make the given dst directory and copy stats from src
         Append dst to ``fails`` on error
-        '''
+        """
         if self.progressfnc:
             self.progressfnc('Copying to {0}'.format(dst), self.__getProgPercent())
         try:
@@ -312,15 +335,15 @@ class Sync(object):
             shutil.copystat(src, dst)
             if passes is not None:
                 passes.append(dst)
-            LOG.debug('made dir: {0}'.format(dst))
+            LOG.debug('Created Directory: {0}'.format(dst))
     
     def __copy(self, src, dst, passes=None, fails=None, dry_run=False):
-        '''
+        """
         Copy the given src file to dst
         Append dst to ``fails`` on error
-        '''
+        """
         if self.progressfnc:
-            self.progressfnc('Copying to {0}'.format(dst), self.__getProgPercent())
+            self.progressfnc('Copying {0} -> {1}'.format(src, dst), self.__getProgPercent())
         try:
             if not dry_run:
                 if os.path.exists(dst) and self.runstngs['forceOwnership']:
@@ -330,7 +353,7 @@ class Sync(object):
                         try:
                             os.chmod(dst, stat.S_IWRITE)
                         except Exception as e:
-                            LOG.error('could not make file writable {0}: {1}'.format(dst, e))
+                            LOG.error('Could not make file writable {0}: {1}'.format(dst, e))
                             return False
                 shutil.copy2(src, dst)
         except (IOError, OSError) as e:
@@ -343,17 +366,17 @@ class Sync(object):
         else:
             if passes is not None:
                 passes.append(dst)
-            LOG.debug('copied: {0}'.format(dst))
+            LOG.debug('Copied: {0}'.format(dst))
     
     def __rmdir(self, dir_, passes=None, fails=None, dry_run=False):
-        '''
+        """
         Remove the given dir_.
         Append dir_ to ``fails`` on error
-        '''
+        """
         if self.progressfnc:
             self.progressfnc('Deleting {0}'.format(dir_), self.__getProgPercent())
         if not os.path.isdir(dir_):
-            LOG.warning('dir does not exist: {0}'.format(dir_))
+            LOG.warning('Directory does not exist: {0}'.format(dir_))
             return
         try:
             if not dry_run:
@@ -365,17 +388,17 @@ class Sync(object):
         else:
             if passes is not None:
                 passes.append(dir_)
-            LOG.debug('removed dir: {0}'.format(dir_))
+            LOG.debug('Removed dir: {0}'.format(dir_))
     
     def __remove(self, f, passes=None, fails=None, dry_run=False):
-        '''
+        """
         Delete the given file
         Append f to ``fails`` on error
-        '''
+        """
         if self.progressfnc:
             self.progressfnc('Deleting {0}'.format(f), self.__getProgPercent())
         if not os.path.isfile(f):
-            LOG.warning('file does not exist: {0}'.format(f))
+            LOG.warning('File does not exist: {0}'.format(f))
             return
         try:
             if not dry_run:
@@ -387,7 +410,7 @@ class Sync(object):
         else:
             if passes is not None:
                 passes.append(f)
-            LOG.debug('deleted: {0}'.format(f))
+            LOG.debug('Deleted: {0}'.format(f))
         
     def report(self, diff=False):
         if not self.__hasrun or diff:
@@ -398,10 +421,10 @@ class Sync(object):
             self.runreport()
     
     def diffreport(self, **kwargs):
-        '''
+        """
         Return a report from the current diff
         ``trimmed`` -- if True, returns the trimmed diff's report
-        '''
+        """
         if self.origdiff is None:
             return
         if self.runstngs['trimmed']:
@@ -410,9 +433,9 @@ class Sync(object):
             return self.origdiff.report(**kwargs)
     
     def runreport(self):
-        '''
+        """
         Print a report for the last update/sync/run.
-        '''
+        """
         if self.src is None:
             LOG.info('No source path is defined')
             return
